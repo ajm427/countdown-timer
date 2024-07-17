@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer</title>
+  <style>
+    #countdown-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: blue;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 10px 0;
+      z-index: 1000;
+      border-bottom: 1px solid white;
+    }
+
+    #countdown-message {
+      margin-right: 10px;
+    }
+
+    #countdown-timer {
+      font-weight: bold;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      #countdown-header {
+        position: relative;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="countdown-header">
+    <span id="countdown-message">Hire Me at 25% off (60K/yr) offer ends in </span>
+    <span id="countdown-timer">23:59:59</span>
+  </div>
+
+  <script>
+    function setCookie(name, value, days) {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    }
+
+    function startCountdown() {
+      var countdownTimer = document.getElementById('countdown-timer');
+      var endTime = getCookie('countdownEndTime');
+
+      if (!endTime) {
+        endTime = new Date().getTime() + 24*60*60*1000; // 24 hours from now
+        setCookie('countdownEndTime', endTime, 1); // Set cookie to expire in 1 day
+      }
+
+      function updateCountdown() {
+        var now = new Date().getTime();
+        var timeLeft = endTime - now;
+
+        if (timeLeft > 0) {
+          var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+          countdownTimer.textContent = 
+            (hours < 10 ? "0" : "") + hours + ":" +
+            (minutes < 10 ? "0" : "") + minutes + ":" +
+            (seconds < 10 ? "0" : "") + seconds;
+
+          countdownTimer.style.animation = 'pulse 1s';
+          setTimeout(() => { countdownTimer.style.animation = 'none'; }, 1000);
+
+          setTimeout(updateCountdown, 1000);
+        } else {
+          countdownTimer.textContent = "Offer Expired";
+        }
+      }
+
+      updateCountdown();
+    }
+
+    document.addEventListener('DOMContentLoaded', startCountdown);
+  </script>
+</body>
+</html>
